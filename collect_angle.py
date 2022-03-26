@@ -10,6 +10,7 @@ detector = pb.Pose_detector()
 # Define the codec and create VideoWriter object
 fourcc = cv2.VideoWriter_fourcc(*'XVID')
 out = cv2.VideoWriter('test#3.mp4', fourcc, 20.0, (640,  480))
+
 val_angle = []
 while True:
     success, img = cap.read()
@@ -23,20 +24,18 @@ while True:
         #print(lmList[14])
         #cv2.circle(img, (lmList[14][1], lmList[14][2]), 15, (255, 0, 0), cv2.FILLED)
     
+    ## Choose below var of points
     # left arm detection
     #point_1, point_2, point_3 = 16, 14, 12
     # left leg detection
     point_1, point_2, point_3 = 28, 26, 24
 
     angle = detector.angle(img, point_1, point_2, point_3, draw=True)
-    #angle = 360 - angle
+    
     val_angle.append(angle)
     print("{}: {}".format(len(val_angle), angle))
-    #Detect the landmark of the leg
-    #if len(lmList) !=0:
-    #    print(lmList[14])
-    #    cv2.circle(img, (lmList[14][1], lmList[14][2]), 15, (0, 0, 255), cv2.FILLED)
-
+    
+    #Determine the FPS
     cTime = time.time()
     fps = 1 / (cTime - pTime)
     pTime = cTime
@@ -47,10 +46,11 @@ while True:
                 (255, 0, 0), 3)
     
     #img = cv2.flip(img, 0)
-    # write the flipped frame
+    #Write the video, frame by frame
     out.write(img)
 
     cv2.imshow("Image", img)
     cv2.waitKey(1)
 
+#Release the video to current directory
 out.release()
