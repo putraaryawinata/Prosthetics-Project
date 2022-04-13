@@ -19,9 +19,50 @@ class Pose_detector():
 
         self.mpDraw = mp.solutions.drawing_utils
         self.mpPose = mp.solutions.pose
+        self.mpHands = mp.solutions.hands
         self.pose = self.mpPose.Pose()
+        self.hand = self.mpHands.Hands()
+        self.mp_drawing_styles = mp.solutions.drawing_styles
+        
 
-    #Detecting the pose
+    #Detecting the pose and the hand
+    ##THE HAND
+    def detect_hands(self, img, draw=True):
+        imgRGB_hands = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        results = self.hand.process(imgRGB_hands)
+        if results.multi_hand_landmarks:
+            if draw:
+                self.mpDraw.draw_landmarks(img, results.multi_hand_landmarks,
+                                           self.mpHands.HAND_CONNECTIONS,
+                                           #self.mp_drawing_styles.get_default_hand_landmarks_style(),
+                                           #self.mp_drawing_styles.get_default_hand_connections_style()
+                                           )
+        return img
+    #Determine the position of the detected hand
+    def draw_finger_angles(self, img, joint_list):
+        imgRGB_hands = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        results = self.hand.process(imgRGB_hands)
+        # Loop through hands
+        if results.multi_hand_landmarks:
+            for hand in results.multi_hand_landmarks:
+                #Loop through joint sets 
+                for joint in joint_list:
+                    a = np.array([hand.landmark[joint[0]].x, hand.landmark[joint[0]].y]) # First coord
+                    b = np.array([hand.landmark[joint[1]].x, hand.landmark[joint[1]].y]) # Second coord
+                    c = np.array([hand.landmark[joint[2]].x, hand.landmark[joint[2]].y]) # Third coord
+                    
+                    radians = np.arctan2(c[1] - b[1], c[0]-b[0]) - np.arctan2(a[1]-b[1], a[0]-b[0])
+                    angle = np.abs(radians*180.0/np.pi)
+                    
+                    if angle > 180.0:
+                        angle = 360-angle
+                        
+                    cv2.putText(img, str(round(angle, 2)), tuple(np.multiply(b, [640, 480]).astype(int)),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2, cv2.LINE_AA)
+        return img
+
+
+    ##THE POSE
     def detect_pose(self, img, draw=True):
         imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         self.results = self.pose.process(imgRGB)
@@ -31,6 +72,7 @@ class Pose_detector():
                                            self.mpPose.POSE_CONNECTIONS)
         return img
 
+    
     #Determine the position of the detected pose
     def position(self, img, draw=True):
         self.lmList = []
@@ -69,7 +111,8 @@ class Pose_detector():
         if angle > 180:
             angle = 360 - angle
 
-        # print(angle)
+        #Adjustment of the prototype
+        angle = 180 - angle
 
         # Draw
         if draw:
