@@ -2,4 +2,4 @@
 Every codes and procedures are contained in this directory
 
 # Notes
-v3 bionicleg_model would be necessary to considering StandardScaler uses. Unlike v1 and v2, they are directly using the raw value instead of preprocess it before training.
+bionicleg_svr.sav would be required to use StandardScaler. Unlike v1, v2, and v3 in tflite format, they are directly using the raw value instead of preprocess it before training.
