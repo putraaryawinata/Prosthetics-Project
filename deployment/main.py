@@ -21,7 +21,7 @@ if __name__ == '__main__':
             except:
                 continue
             # CONVERT SENSOR VALUE TO SUDUT
-            sudut = bm.convert_sensor_into_sudut('bionicleg_model2.tflite', sensor_value)
+            sudut = bm.convert_sensor_into_sudut('bionicleg_model3.tflite', sensor_value)
             print(sudut)
 
             # PASS SUDUT BACK TO ARDIONO
